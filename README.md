@@ -6,6 +6,8 @@ Alpha is an evidence-first operations system for food businesses. It connects re
 
 This repository is the redacted public artifact for **Team Ascend**, submitted to the **MAIC Nexus Challenge 2026 — T6 ESG & SDG** track by **Tan Jin Wei**.
 
+**Live dashboard:** [Open the Alpha evidence dashboard](https://steventjwai-newbie.github.io/Ascend/)
+
 ## What the prototype demonstrates
 
 - A daily owner-facing investigation queue instead of another generic inventory screen.
