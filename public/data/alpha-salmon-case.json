@@ -1,0 +1,31 @@
+{
+  "snapshot": "2026-07-05",
+  "outlet": "Cafe Q1",
+  "ingredient": "Salmon Fillet",
+  "model": {
+    "rawKgPerBatch": 4.24,
+    "portionsPerBatch": 36,
+    "rawKgPerPortion": 0.1177777778,
+    "limitations": [
+      "No June physical stock count",
+      "Receipt date used as the receipt event",
+      "No opening balance before 19 June",
+      "Reservation calendar not connected",
+      "Public-holiday calendar not linked"
+    ]
+  },
+  "timeline": [
+    { "date": "19 Jun", "event": "Redacted receipt A", "changeKg": 9.36, "balanceKg": 9.36 },
+    { "date": "19-26 Jun", "event": "57 POS-derived portions", "changeKg": -6.7133333333, "balanceKg": 2.6466666667 },
+    { "date": "27 Jun", "event": "Redacted receipt B", "changeKg": 5.11, "balanceKg": 7.7566666667 },
+    { "date": "27-29 Jun", "event": "31 POS-derived portions", "changeKg": -3.6511111111, "balanceKg": 4.1055555556 },
+    { "date": "30 Jun", "event": "Redacted receipt C", "changeKg": 4.72, "balanceKg": 8.8255555556 },
+    { "date": "30 Jun-5 Jul", "event": "49 POS-derived portions", "changeKg": -5.7711111111, "balanceKg": 3.0544444445 }
+  ],
+  "sourceSummary": {
+    "sales": "FeedMe daily item sales exports",
+    "recipes": "Seatable ingredient, WIP and recipe tables",
+    "purchases": "Alpha parsed invoice results",
+    "supplierSchedule": "Seatable supplier master plus operator confirmation"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "snapshot": "2026-08-21",
+  "outlet": "Cafe Q1",
+  "ingredient": "Frozen salmon fillet",
+  "supplier": "Supplier K (redacted)",
+  "receipt": {
+    "date": "2026-08-17",
+    "purchasedKg": 8.8,
+    "pricePerPurchasedKg": 46,
+    "lineAmountRm": 404.8,
+    "thawedKg": 6.15,
+    "receiptYieldPct": 69.8864,
+    "receiptLossKg": 2.65,
+    "effectiveThawedCostPerKgRm": 65.8211
+  },
+  "allocations": [
+    { "label": "Small portions", "use": "Pasta and fish-and-chips recipes", "kg": 2.477 },
+    { "label": "Large portions", "use": "Brown-rice recipe", "kg": 3.602 }
+  ],
+  "reconciliation": {
+    "allocatedKg": 6.079,
+    "unreconciledKg": 0.071,
+    "reviewNoteKg": 1.079,
+    "reviewNoteStatus": "Scope unclear; excluded from yield, waste and cost conclusions"
+  },
+  "evidence": [
+    "Redacted supplier receipt",
+    "Operator thawed-weight observation",
+    "Operator portion-allocation observation"
+  ]
+}

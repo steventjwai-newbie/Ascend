@@ -1,0 +1,204 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import salmonSnapshot from "@/public/data/alpha-salmon-case.json";
+import latestReceipt from "@/public/data/alpha-latest-receipt.json";
+
+type CaseStatus = "Open" | "Verifying" | "Resolved";
+type EvidenceTone = "confirmed" | "linked" | "missing" | "review";
+
+type MarginCase = {
+  id: string;
+  title: string;
+  category: string;
+  severity: "high" | "medium" | "low";
+  evidenceState: string;
+  impact: string;
+  status: CaseStatus;
+  observed: string;
+  expected: string;
+  context: { label: string; tone: EvidenceTone }[];
+  hypotheses: { label: string; assessment: string; tone: EvidenceTone }[];
+  evidence: { source: string; detail: string; locator: string; tone: EvidenceTone; date?: string }[];
+  action: string;
+};
+
+const cases: MarginCase[] = [
+  {
+    id: "ALP-004",
+    title: "Frozen salmon delivered 8.80 kg but yielded 6.15 kg thawed",
+    category: "Receipt yield",
+    severity: "high",
+    evidenceState: "3 sources linked · 1 note held",
+    impact: "RM65.82/kg usable",
+    status: "Verifying",
+    observed: "A redacted 17 August receipt records 8.80 kg at RM46/kg. The batch weighed 6.15 kg after thawing: a 69.89% receipt yield and an effective thawed cost of approximately RM65.82/kg.",
+    expected: "Supplier comparison must use usable thawed weight, not headline frozen kilograms. Portion outputs should reconcile to that 6.15 kg before any difference is labelled waste.",
+    context: [
+      { label: "8.80 kg purchased", tone: "confirmed" },
+      { label: "6.15 kg thawed", tone: "confirmed" },
+      { label: "2.477 kg small portions", tone: "confirmed" },
+      { label: "3.602 kg large portions", tone: "confirmed" },
+      { label: "71 g still unreconciled", tone: "review" },
+      { label: "1.079 kg note scope unclear", tone: "review" },
+    ],
+    hypotheses: [
+      { label: "Frozen-to-thawed loss is supplier-product specific", assessment: "Measured for this receipt batch", tone: "confirmed" },
+      { label: "Most thawed weight entered portion outputs", assessment: "6.079 of 6.15 kg recorded", tone: "linked" },
+      { label: "The separate 1.079 kg note describes a by-product", assessment: "Scope is not confirmed; excluded", tone: "review" },
+      { label: "The 71 g balance is trimming, drip or weighing tolerance", assessment: "One operator clarification can resolve it", tone: "review" },
+    ],
+    evidence: [
+      { source: "Confirmed", date: "2026-08-21", detail: "6.15 kg thawed; 2.477 kg small plus 3.602 kg large portions", locator: "Cafe Q1 batch observation", tone: "confirmed" },
+      { source: "Review", date: "2026-08-21", detail: "Handwritten 1.079 kg value has no confirmed label or calculation role", locator: "Held outside yield and waste totals", tone: "review" },
+      { source: "Linked", date: "2026-08-17", detail: "8.80 kg frozen salmon at RM46/kg = RM404.80", locator: "Redacted supplier receipt", tone: "linked" },
+    ],
+    action: "Clarify what the 1.079 kg note represents and classify the remaining 71 g as trimming, drip loss or weighing tolerance. Until then, Alpha reports a receipt-yield finding—not confirmed food waste.",
+  },
+  {
+    id: "ALP-001",
+    title: "A second salmon receipt landed with 4.11 kg theoretically on hand",
+    category: "Inventory variance",
+    severity: "high",
+    evidenceState: "6 of 9 checks complete",
+    impact: "4.11 kg unverified",
+    status: "Verifying",
+    observed: "After the 27 June receipt and recorded sales through 29 June, the recipe model still carried approximately 4.11 kg, or 35 portions, before another 4.72 kg arrived on 30 June.",
+    expected: "With a one-day lead time, ordering should be explainable by projected days of cover, Sunday and public-holiday delivery constraints, and known group reservations.",
+    context: [
+      { label: "Cafe Q1 only", tone: "confirmed" },
+      { label: "One-day supplier lead time", tone: "confirmed" },
+      { label: "No delivery Sundays or public holidays", tone: "confirmed" },
+      { label: "No off-POS use reported", tone: "confirmed" },
+      { label: "No June physical stock count", tone: "missing" },
+      { label: "Reservation calendar not connected", tone: "missing" },
+      { label: "Public-holiday calendar not linked", tone: "missing" },
+    ],
+    hypotheses: [
+      { label: "Physical stock was below the recipe model", assessment: "Needs a targeted count", tone: "missing" },
+      { label: "A group reservation justified the buffer", assessment: "Calendar not connected", tone: "missing" },
+      { label: "Receipt date differs from order decision time", assessment: "One-day lead known; order timestamp absent", tone: "review" },
+      { label: "Prep yield or portioning differs from the master recipe", assessment: "Test against the next production batch", tone: "review" },
+    ],
+    evidence: [
+      { source: "POS sales", detail: "57 fillet portions sold, 19-26 Jun", locator: "FeedMe item sales export", tone: "linked" },
+      { source: "Recipe model", detail: "4.24 kg raw fillet makes 36 portions", locator: "Seatable: Salmon Marinate", tone: "linked" },
+      { source: "Invoice", detail: "9.36 kg received at RM45/kg", locator: "Redacted receipt A · 19 Jun", tone: "linked" },
+      { source: "Invoice", detail: "5.11 kg received at RM46/kg", locator: "Redacted receipt B · 27 Jun", tone: "linked" },
+      { source: "Invoice", detail: "4.72 kg received at RM46/kg", locator: "Redacted receipt C · 30 Jun", tone: "linked" },
+      { source: "Supplier master", detail: "Every day except Sunday; order one day before", locator: "Redacted supplier record", tone: "linked" },
+    ],
+    action: "Count salmon fillet immediately before the next receipt and capture the reservation or operating reason at the order decision. One observation will distinguish a real stock gap from justified buffer stock.",
+  },
+  {
+    id: "ALP-002",
+    title: "Smoked salmon cost and unit records disagree",
+    category: "Master-data integrity",
+    severity: "medium",
+    evidenceState: "Source conflict",
+    impact: "Margin unreliable",
+    status: "Open",
+    observed: "The ingredient master carries zero cost, while supplier records include an active 1 kg product at RM74 and an older supplier record expressed as 38 slices for RM102.",
+    expected: "One current supplier product should map to a canonical gram cost, with the 38-slice-per-kilogram conversion retained only as an operational estimate.",
+    context: [
+      { label: "Supplier invoices calculate by grams", tone: "confirmed" },
+      { label: "38 slices per kg is operator-estimated", tone: "review" },
+      { label: "Ingredient master cost is zero", tone: "linked" },
+      { label: "Seafood pizza uses salmon cubes", tone: "confirmed" },
+    ],
+    hypotheses: [
+      { label: "Current product is not linked to the ingredient", assessment: "Likely mapping gap", tone: "review" },
+      { label: "Slice conversion is stale", assessment: "Weigh and count one pack", tone: "review" },
+      { label: "Fillet, cube and smoked salmon were conflated", assessment: "SKU separation confirmed for pizza", tone: "confirmed" },
+    ],
+    evidence: [
+      { source: "Ingredient master", detail: "Smoked salmon base unit: g; current cost: RM0", locator: "Seatable ingredients", tone: "linked" },
+      { source: "Supplier product", detail: "1 kg at RM74", locator: "Redacted supplier record", tone: "linked" },
+      { source: "Supplier product", detail: "38 slices at RM102", locator: "Redacted historical supplier record", tone: "linked" },
+      { source: "Operator context", detail: "Supplier calculates by grams", locator: "Q1 operating confirmation", tone: "confirmed" },
+    ],
+    action: "Choose the current supplier product, map it to grams, and count one unopened kilogram pack. Keep fillet, cube and smoked salmon as separate SKUs throughout the recipe graph.",
+  },
+  {
+    id: "ALP-003",
+    title: "Six parsed invoice dates failed plausibility checks",
+    category: "Document quality",
+    severity: "low",
+    evidenceState: "6 records held",
+    impact: "Timeline protected",
+    status: "Open",
+    observed: "Across 85 deduplicated parsed invoices, six records had an empty date or an implausible year, including a future August 2026 value in the July snapshot.",
+    expected: "An invoice should enter the stock timeline only when its date is plausible or a reviewer confirms the source document date.",
+    context: [
+      { label: "85 deduplicated invoices", tone: "linked" },
+      { label: "79 usable date records", tone: "linked" },
+      { label: "Six dates quarantined", tone: "linked" },
+      { label: "No automatic ledger write-back", tone: "confirmed" },
+    ],
+    hypotheses: [
+      { label: "OCR selected a nearby non-invoice date", assessment: "Review source page", tone: "review" },
+      { label: "Blank or weak print caused an empty date", assessment: "Review source page", tone: "review" },
+      { label: "Duplicate parsing produced conflicting dates", assessment: "Deduplication already applied", tone: "linked" },
+    ],
+    evidence: [
+      { source: "Invoice parser", detail: "85 unique invoice records", locator: "Alpha parsed-results snapshot", tone: "linked" },
+      { source: "Date validator", detail: "Empty, 2019, 2020, 2023, 2024 or future date", locator: "Six held records", tone: "linked" },
+      { source: "Control rule", detail: "Held records excluded from the stock corridor", locator: "Snapshot build", tone: "confirmed" },
+    ],
+    action: "Open only the six held source documents, correct their dates once, and retain both the extracted and reviewed values for auditability.",
+  },
+];
+
+const roadmap = [
+  { phase: "01", title: "Build the first evidence snapshot", period: "Completed", state: "Done", tasks: ["Link Q1 FeedMe sales, Seatable recipes and seafood invoices", "Keep salmon fillet, cubes and smoked salmon as distinct SKUs", "Calculate an auditable theoretical stock corridor", "Quarantine implausible invoice dates instead of silently using them"] },
+  { phase: "02", title: "Close the two missing contexts", period: "Next service week", state: "Next", tasks: ["Capture one targeted salmon count before a receipt", "Connect group reservations to expected demand", "Link the public-holiday delivery calendar", "Record the operator reason when an order is placed"] },
+  { phase: "03", title: "Run a 14-day Q1 pilot", period: "After registration", state: "Pilot", tasks: ["Generate a daily evidence-first exception list", "Ask for verification only when the decision can change", "Measure useful alerts, false alerts and operator time", "Report verified RM only after a physical or documentary check"] },
+  { phase: "04", title: "Test repeatability", period: "After Q1 proof", state: "Gate", tasks: ["Repeat with another outlet and POS export", "Package standard mappings before accepting custom work", "Keep CSV fallback when an API breaks or changes price", "Decide whether the evidence supports a commercial product"] },
+];
+
+const successMetrics = [
+  { label: "Alert usefulness", target: "≥ 70%", detail: "Useful finding or useful verification" },
+  { label: "Operator burden", target: "< 5 min/day", detail: "Outside normal receiving work" },
+  { label: "Evidence links", target: "100%", detail: "Every claim names its source record" },
+  { label: "Commercial claim", target: "Verified RM", detail: "No projected savings presented as recovered" },
+];
+
+export default function Home() {
+  const [activeView, setActiveView] = useState<"operations" | "roadmap">("operations");
+  const [caseStates, setCaseStates] = useState(cases);
+  const [selectedId, setSelectedId] = useState(cases[0].id);
+  const [notice, setNotice] = useState("Source-linked Q1 snapshot. Measured receipt yield is confirmed; the remaining 71 g and 1.079 kg note are still under review.");
+  const selected = useMemo(() => caseStates.find((item) => item.id === selectedId) ?? caseStates[0], [caseStates, selectedId]);
+  const setStatus = (status: CaseStatus) => {
+    setCaseStates((items) => items.map((item) => (item.id === selected.id ? { ...item, status } : item)));
+    setNotice(`${selected.id} marked ${status.toLowerCase()} in this review session. No source system was changed.`);
+  };
+
+  return (
+    <main className="app-shell">
+      <header className="topbar">
+        <div className="brand-lockup"><div className="alpha-mark" aria-hidden="true">A</div><div><strong>ALPHA</strong><span>Margin integrity</span></div></div>
+        <nav className="view-switcher" aria-label="Dashboard views"><button className={activeView === "operations" ? "active" : ""} onClick={() => setActiveView("operations")}>Evidence review</button><button className={activeView === "roadmap" ? "active" : ""} onClick={() => setActiveView("roadmap")}>Pilot roadmap</button></nav>
+        <div className="sync-state"><span className="live-dot" /> Cafe Q1<small>Evidence through 21 Aug 2026</small></div>
+      </header>
+
+      {activeView === "operations" ? <>
+        <section className="hero-band"><div><p className="eyebrow">Expected margin vs operational reality</p><h1>Find where the<br /><em>food margin went.</em></h1><p className="hero-copy">Alpha reconstructs what should have happened from receipts, sales, recipes and operating context—then sends a human to the precise missing fact.</p></div><div className="hero-metrics" aria-label="Q1 evidence summary"><div><span>Receipt yield</span><strong>{latestReceipt.receipt.receiptYieldPct.toFixed(2)}%</strong><small>8.80 kg frozen → 6.15 kg thawed</small></div><div><span>Usable cost</span><strong>RM{latestReceipt.receipt.effectiveThawedCostPerKgRm.toFixed(2)}</strong><small>Per kg after measured receipt loss</small></div><div><span>Unreconciled</span><strong>{Math.round(latestReceipt.reconciliation.unreconciledKg * 1000)} g</strong><small>Held for operator clarification</small></div></div></section>
+        <div className="notice" role="status"><span>REDACTED REAL DATA</span>{notice}</div>
+        <section className="workspace-grid">
+          <aside className="case-rail"><div className="section-heading"><div><p className="eyebrow">Investigation queue</p><h2>What needs attention</h2></div><span>{caseStates.length}</span></div><div className="case-list">{caseStates.map((item) => <button key={item.id} className={`case-card ${selected.id === item.id ? "selected" : ""}`} onClick={() => setSelectedId(item.id)}><div className="case-meta"><span className={`severity ${item.severity}`}>{item.category}</span><small>{item.id}</small></div><h3>{item.title}</h3><div className="case-footer"><strong>{item.impact}</strong><span>{item.evidenceState}</span></div></button>)}</div></aside>
+          <article className="case-detail">
+            <div className="detail-header"><div><div className="detail-kicker"><span className={`severity ${selected.severity}`}>{selected.category}</span><span>{selected.id}</span></div><h2>{selected.title}</h2></div><div className={`status-pill ${selected.status.toLowerCase()}`}>{selected.status}</div></div>
+            <div className="fact-grid"><div className="fact observed"><span>Observed in the model</span><p>{selected.observed}</p></div><div className="fact expected"><span>Operational expectation</span><p>{selected.expected}</p></div></div>
+            <section className="context-panel"><div className="section-heading compact"><div><p className="eyebrow">Context ledger</p><h3>Known facts and explicit gaps</h3></div></div><div className="context-tags">{selected.context.map((item) => <span className={item.tone} key={item.label}>{item.label}</span>)}</div></section>
+            {selected.id === "ALP-001" && <section className="corridor-panel"><div className="section-heading compact"><div><p className="eyebrow">Theoretical stock corridor</p><h3>Receipts minus recipe-derived POS demand</h3></div></div><div className="corridor-table" role="table" aria-label="Salmon theoretical stock corridor"><div className="corridor-row corridor-head" role="row"><span>Date</span><span>Evidence event</span><span>Change</span><span>Balance</span></div>{salmonSnapshot.timeline.map((row) => <div className="corridor-row" role="row" key={`${row.date}-${row.event}`}><span>{row.date}</span><strong>{row.event}</strong><span className={row.changeKg >= 0 ? "positive" : "negative"}>{row.changeKg >= 0 ? "+" : ""}{row.changeKg.toFixed(2)} kg</span><b>{row.balanceKg.toFixed(2)} kg</b></div>)}</div><p className="model-boundary">This is not a physical stock ledger. It assumes invoice dates are receipt dates, uses the master recipe, and starts at zero before the 19 June receipt. Any earlier stock would increase the theoretical balance; unrecorded loss, yield variance or portion variance could reduce the physical balance.</p></section>}
+            {selected.id === "ALP-004" && <section className="corridor-panel"><div className="section-heading compact"><div><p className="eyebrow">Receipt-to-output bridge</p><h3>Purchased weight → thawed weight → recorded allocation</h3></div></div><div className="corridor-table" role="table" aria-label="Latest salmon receipt reconciliation"><div className="corridor-row corridor-head" role="row"><span>Date</span><span>Evidence event</span><span>Weight</span><span>State</span></div><div className="corridor-row" role="row"><span>17 Aug</span><strong>Frozen weight purchased</strong><span>8.800 kg</span><b>Linked</b></div><div className="corridor-row" role="row"><span>21 Aug</span><strong>Measured after thawing</strong><span>6.150 kg</span><b>Confirmed</b></div>{latestReceipt.allocations.map((row) => <div className="corridor-row" role="row" key={row.label}><span>21 Aug</span><strong>{row.label} · {row.use}</strong><span>{row.kg.toFixed(3)} kg</span><b>Confirmed</b></div>)}<div className="corridor-row" role="row"><span>21 Aug</span><strong>Balance requiring classification</strong><span>{latestReceipt.reconciliation.unreconciledKg.toFixed(3)} kg</span><b>Review</b></div></div><p className="model-boundary">Purchase price RM{latestReceipt.receipt.pricePerPurchasedKg.toFixed(2)}/kg becomes approximately RM{latestReceipt.receipt.effectiveThawedCostPerKgRm.toFixed(2)}/kg of thawed fillet. The separate 1.079 kg handwritten note is excluded because its meaning is not yet confirmed.</p></section>}
+            <div className="analysis-grid"><section><div className="section-heading compact"><div><p className="eyebrow">Diagnosis</p><h3>Explanations still in play</h3></div></div><div className="hypothesis-list">{selected.hypotheses.map((item) => <div className="hypothesis" key={item.label}><span className={`evidence-dot ${item.tone}`} /><div><strong>{item.label}</strong><small>{item.assessment}</small></div></div>)}</div></section><section><div className="section-heading compact"><div><p className="eyebrow">Evidence chain</p><h3>Latest evidence first</h3></div></div><div className="evidence-list">{selected.evidence.map((item) => <div className={`evidence-item ${item.tone}`} key={`${item.source}-${item.locator}`}><span>{item.source}{item.date && <small>{item.date}</small>}</span><strong>{item.detail}</strong><small>{item.locator}</small></div>)}</div></section></div>
+            <section className="recommended-action"><div><p className="eyebrow">Minimum next evidence</p><h3>{selected.action}</h3><small>The review decision is retained as an audit event; Alpha does not silently write to POS, stock or accounting systems.</small></div><div className="action-buttons"><button className="secondary" onClick={() => setStatus("Verifying")}>Request verification</button><button className="primary" onClick={() => setStatus("Resolved")}>Record resolution</button></div></section>
+          </article>
+          <aside className="health-rail"><div className="section-heading"><div><p className="eyebrow">Evidence reliability</p><h2>Snapshot coverage</h2></div></div><div className="health-list"><div><span className="health-dot healthy" /><p><strong>Receipt line</strong><small>8.80 kg · RM46/kg</small></p><b>LINKED</b></div><div><span className="health-dot healthy" /><p><strong>Thawed weight</strong><small>6.15 kg observed</small></p><b>CONFIRMED</b></div><div><span className="health-dot healthy" /><p><strong>Portion outputs</strong><small>6.079 kg allocated</small></p><b>CONFIRMED</b></div><div><span className="health-dot warning" /><p><strong>Handwritten note</strong><small>1.079 kg scope unclear</small></p><b>REVIEW</b></div><div><span className="health-dot warning" /><p><strong>Residual balance</strong><small>71 g unclassified</small></p><b>REVIEW</b></div><div><span className="health-dot neutral" /><p><strong>Reservations</strong><small>Not connected</small></p><b>MISSING</b></div></div><div className="freshness-card"><span>Latest batch yield</span><strong>{latestReceipt.receipt.receiptYieldPct.toFixed(2)}%</strong><small>Measured receipt yield, not an estimate of food waste.</small></div><div className="source-note"><strong>Inference boundary</strong><p>Alpha separates measured supplier-product yield from recipe yield. It does not call the weight difference waste until evidence identifies its cause and disposition.</p></div></aside>
+        </section>
+      </> : <section className="roadmap-view"><div className="roadmap-intro"><p className="eyebrow">Validation before platform</p><h1>Prove one leak.<br /><em>Then earn the roadmap.</em></h1><p>The first real Q1 snapshot is complete. The next step is deliberately small: close the physical-stock and reservation gaps, then test whether the signal changes a real operating decision.</p></div><div className="metric-strip">{successMetrics.map((metric) => <div key={metric.label}><span>{metric.label}</span><strong>{metric.target}</strong><small>{metric.detail}</small></div>)}</div><div className="roadmap-list">{roadmap.map((item) => <article key={item.phase}><div className="phase-number">{item.phase}</div><div className="phase-copy"><div className="phase-title"><div><p>{item.period}</p><h2>{item.title}</h2></div><span>{item.state}</span></div><ul>{item.tasks.map((task) => <li key={task}>{task}</li>)}</ul></div></article>)}</div><section className="decision-gate"><div><p className="eyebrow">Go / no-go decision</p><h2>Judge Alpha by resolved uncertainty.</h2></div><p>Continue only if Q1 repeatedly confirms that the evidence chain finds material problems earlier, explains them at the source, and avoids creating another daily data-entry burden.</p></section></section>}
+    </main>
+  );
+}
