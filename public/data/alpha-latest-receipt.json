@@ -2,7 +2,7 @@
   "snapshot": "2026-08-21",
   "outlet": "Cafe Q1",
   "ingredient": "Frozen salmon fillet",
-  "supplier": "Supplier K (redacted)",
+  "supplier": "Seafood Supplier A",
   "receipt": {
     "date": "2026-08-17",
     "purchasedKg": 8.8,
@@ -10,7 +10,7 @@
     "lineAmountRm": 404.8,
     "thawedKg": 6.15,
     "receiptYieldPct": 69.8864,
-    "receiptLossKg": 2.65,
+    "unclassifiedDifferenceKg": 1.571,
     "effectiveThawedCostPerKgRm": 65.8211
   },
   "allocations": [
@@ -19,13 +19,17 @@
   ],
   "reconciliation": {
     "allocatedKg": 6.079,
-    "unreconciledKg": 0.071,
-    "reviewNoteKg": 1.079,
-    "reviewNoteStatus": "Scope unclear; excluded from yield, waste and cost conclusions"
+    "primaryResidualKg": 0.071,
+    "retainedCoproductKg": 1.079,
+    "totalRetainedFoodKg": 7.229,
+    "unclassifiedDifferenceKg": 1.571,
+    "batchStatus": "Open — stock not exhausted",
+    "boundary": "The unclassified difference has no measured cause and is not labelled as waste."
   },
   "evidence": [
     "Redacted supplier receipt",
     "Operator thawed-weight observation",
-    "Operator portion-allocation observation"
+    "Operator portion-allocation observation",
+    "Operator confirmation that the 1.079 kg was retained for secondary dishes"
   ]
 }

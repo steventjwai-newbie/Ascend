@@ -1,0 +1,85 @@
+{
+  "snapshot": "2026-08-25",
+  "outlet": "Cafe Q1",
+  "privacy": {
+    "supplierAliases": ["Seafood Supplier A", "Seafood Supplier B"],
+    "excludedPublicFields": [
+      "supplier names",
+      "invoice numbers",
+      "customer information",
+      "source row identifiers"
+    ]
+  },
+  "observedLatestBatch": {
+    "supplierAlias": "Seafood Supplier A",
+    "status": "Open — stock not exhausted",
+    "purchasedKg": 8.8,
+    "purchasePricePerKgRm": 46,
+    "purchaseAmountRm": 404.8,
+    "primaryFilletKg": 6.15,
+    "smallAllocationKg": 2.477,
+    "largeAllocationKg": 3.602,
+    "primaryResidualKg": 0.071,
+    "retainedCoproductKg": 1.079,
+    "totalRetainedFoodKg": 7.229,
+    "unclassifiedDifferenceKg": 1.571,
+    "primaryYieldRatio": 0.6988636364,
+    "smallAllocationRatio": 0.2814772727,
+    "largeAllocationRatio": 0.4093181818,
+    "retainedCoproductRatio": 0.1226136364,
+    "totalRetainedFoodRatio": 0.8214772727,
+    "unclassifiedDifferenceRatio": 0.1785227273,
+    "boundary": "The unclassified difference has no measured cause. It is not labelled as waste, ice, packaging or drip loss."
+  },
+  "historicalProjection": {
+    "label": "Modelled using latest observed batch ratio — not actual historical output",
+    "receiptCount": 10,
+    "purchasedKg": 52.54,
+    "projectedPrimaryFilletKg": 36.7182954545,
+    "projectedRetainedCoproductKg": 6.4421204545,
+    "projectedTotalRetainedFoodKg": 43.1604159091,
+    "projectedSmall80gEquivalents": 184.8601988636,
+    "projectedLarge125gEquivalents": 172.0446181818,
+    "boundary": "The two portion-equivalent figures are the simultaneous production mix implied by the latest batch, not alternative maximum capacities and not recorded historical production."
+  },
+  "posTheoreticalDemand": {
+    "period": "2026-08-20 to 2026-08-23",
+    "status": "Multi-batch theoretical demand — not reconciled to the open latest receipt",
+    "primaryFilletLines": [
+      { "menuItem": "Salmon Spaghetti", "sales": 149, "portionGrams": 80, "theoreticalKg": 11.92 },
+      { "menuItem": "Salmon Fish and Chips", "sales": 72, "portionGrams": 160, "theoreticalKg": 11.52 },
+      { "menuItem": "Pan-seared Salmon With Brown Rice", "sales": 76, "portionGrams": 125, "theoreticalKg": 9.5 },
+      { "menuItem": "Grilled Salmon", "sales": 1, "portionGrams": 80, "theoreticalKg": 0.08 }
+    ],
+    "totalPrimaryFilletKg": 33.02,
+    "excludedProducts": [
+      { "menuItem": "Crispy Salmon Finger", "reason": "Separately purchased frozen packet product" },
+      { "menuItem": "Salmon Quiche", "reason": "Separately sourced finished bakery product" },
+      { "menuItem": "Salmon Benedict", "reason": "Smoked-salmon product" }
+    ],
+    "mixedInputProducts": [
+      { "menuItem": "Salmon Baked Croissant", "reason": "Uses purchased salmon cubes and retained fillet coproduct; split is not measured" },
+      { "menuItem": "Salmon Burger", "reason": "Uses purchased salmon cubes and retained fillet coproduct; split is not measured" }
+    ]
+  },
+  "costViews": [
+    {
+      "label": "Main-fillet basis",
+      "costPerKgRm": 65.8211382114,
+      "calculation": "RM404.80 ÷ 6.150 kg primary fillet",
+      "boundary": "Assigns the full receipt cost to primary fillet."
+    },
+    {
+      "label": "Uniform retained-food basis",
+      "costPerKgRm": 55.9966800387,
+      "calculation": "RM404.80 ÷ 7.229 kg total retained food",
+      "boundary": "Allocates cost uniformly across primary fillet and retained coproduct."
+    }
+  ],
+  "recipePortions": [
+    { "menuItem": "Pan-seared Salmon With Brown Rice", "portionGrams": 125, "state": "Confirmed correction" },
+    { "menuItem": "Grilled Salmon", "portionGrams": 80, "state": "Confirmed correction" },
+    { "menuItem": "Salmon Spaghetti", "portionGrams": 80, "state": "Confirmed" },
+    { "menuItem": "Salmon Fish and Chips", "portionGrams": 160, "state": "Confirmed" }
+  ]
+}

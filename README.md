@@ -21,7 +21,9 @@ The public dashboard includes anonymized evidence from a live café pilot. Suppl
 
 ## Latest verified example
 
-One frozen-salmon receipt recorded 8.80 kg purchased at RM46/kg and 6.15 kg after thawing. That is a 69.89% receipt yield and an effective thawed cost of approximately RM65.82/kg. Recorded output allocations totalled 6.079 kg, leaving 71 g still to reconcile. A separate handwritten 1.079 kg note remains under review because its scope is unclear and is excluded from the calculation.
+One frozen-salmon receipt recorded 8.80 kg purchased at RM46/kg and 6.15 kg of primary fillet. That is a 69.89% primary-filleting yield. A further 1.079 kg was confirmed as retained fillet coproduct for secondary dishes, bringing total retained food to 7.229 kg or 82.15%. The remaining 1.571 kg purchased-weight difference has no measured cause and is not labelled as waste, ice, packaging or drip loss. The batch remains open because its stock has not been exhausted.
+
+Using this latest observed production mix as a provisional template, ten earlier frozen-fillet receipts totalling 52.54 kg project to approximately 36.718 kg primary fillet and 6.442 kg retained coproduct. These are modelled historical equivalents, not actual recorded production. A separate 20–23 August POS view calculates 33.02 kg of theoretical primary-fillet demand across mixed inventory; it is not reconciled to the unfinished latest receipt.
 
 This is the product principle in miniature: **show the calculation, expose uncertainty, and ask for the minimum resolving evidence.**
 
