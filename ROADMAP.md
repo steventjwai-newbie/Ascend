@@ -25,6 +25,7 @@
 - Expand supplier-product, ingredient-form, WIP and recipe linkages.
 - Add menu engineering and low-friction staff verification tasks.
 - Develop ESG reporting only from measured waste and auditable evidence.
+- Develop a Halal submission friendly framework to assist users to plan for their halal submission early.
 
 ## Product gate
 
