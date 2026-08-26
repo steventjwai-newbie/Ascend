@@ -15,10 +15,10 @@
 .corridor-row .negative { color: var(--red); }
 .model-boundary { margin: 10px 0 0; color: var(--muted); font-size: 9px; line-height: 1.5; }
 
-.hypothesis { display: grid; grid-template-columns: auto 1fr; gap: 9px; align-items: start; }
-.hypothesis > div { display: flex; flex-direction: column; gap: 4px; margin: 0; height: auto; background: transparent; }
-.hypothesis strong { font-size: 10px; }
-.hypothesis small { font-size: 8px; color: var(--muted); line-height: 1.35; }
+.hypothesis { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 9px; align-items: start; min-height: 0; }
+.hypothesis > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; margin: 0; height: auto; background: transparent; }
+.hypothesis strong { display: block; font-size: 10px; line-height: 1.35; overflow-wrap: anywhere; }
+.hypothesis small { display: block; font-size: 8px; color: var(--muted); line-height: 1.4; overflow-wrap: anywhere; }
 .evidence-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 2px; background: #8a9790; }
 .evidence-dot.confirmed, .evidence-dot.linked { background: #2aa968; }
 .evidence-dot.review { background: var(--amber); }
