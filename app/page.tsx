@@ -5,7 +5,7 @@ import salmonSnapshot from "@/public/data/alpha-salmon-case.json";
 import latestReceipt from "@/public/data/alpha-latest-receipt.json";
 import { SalmonEvidenceModel } from "./SalmonEvidenceModel";
 
-type CaseStatus = "Open" | "Verifying" | "Resolved";
+type CaseStatus = "Open" | "Verifying" | "Ready for decision" | "Resolved";
 type EvidenceTone = "confirmed" | "linked" | "missing" | "review";
 
 type MarginCase = {
@@ -172,10 +172,48 @@ export default function Home() {
   const [caseStates, setCaseStates] = useState(cases);
   const [selectedId, setSelectedId] = useState(cases[0].id);
   const [notice, setNotice] = useState("The latest batch remains open. Observed yield, historical projections and multi-batch POS demand are shown as separate evidence states.");
+  const [actionFeedback, setActionFeedback] = useState<Record<string, string>>({});
+  const [resolutionDraft, setResolutionDraft] = useState("");
   const selected = useMemo(() => caseStates.find((item) => item.id === selectedId) ?? caseStates[0], [caseStates, selectedId]);
   const setStatus = (status: CaseStatus) => {
     setCaseStates((items) => items.map((item) => (item.id === selected.id ? { ...item, status } : item)));
     setNotice(`${selected.id} marked ${status.toLowerCase()} in this review session. No source system was changed.`);
+  };
+  const requestVerification = () => {
+    setStatus("Verifying");
+    setActionFeedback((items) => ({
+      ...items,
+      [selected.id]: "Demo task queued: closing stock, batch uniformity and photo/notes. In the private system, Telegram sends one concise problem summary plus a signed form button.",
+    }));
+  };
+  const simulateEvidence = () => {
+    setStatus("Ready for decision");
+    setActionFeedback((items) => ({
+      ...items,
+      [selected.id]: "Demo evidence submitted. The investigation is ready for owner review; no operational record changed.",
+    }));
+  };
+  const recordResolution = () => {
+    if (selected.status !== "Ready for decision") {
+      setActionFeedback((items) => ({
+        ...items,
+        [selected.id]: "Evidence is required before resolution. Request verification and submit the demo evidence first.",
+      }));
+      return;
+    }
+    if (!resolutionDraft.trim()) {
+      setActionFeedback((items) => ({
+        ...items,
+        [selected.id]: "Add a short resolution note so the decision has an audit reason.",
+      }));
+      return;
+    }
+    setStatus("Resolved");
+    setActionFeedback((items) => ({
+      ...items,
+      [selected.id]: `Demo resolution recorded: ${resolutionDraft.trim()} No POS, stock, accounting or supplier record was changed.`,
+    }));
+    setResolutionDraft("");
   };
 
   return (
@@ -199,7 +237,7 @@ export default function Home() {
             {selected.id === "ALP-001" && <section className="corridor-panel"><div className="section-heading compact"><div><p className="eyebrow">Theoretical stock corridor</p><h3>Receipts minus recipe-derived POS demand</h3></div></div><div className="corridor-table" role="table" aria-label="Salmon theoretical stock corridor"><div className="corridor-row corridor-head" role="row"><span>Date</span><span>Evidence event</span><span>Change</span><span>Balance</span></div>{salmonSnapshot.timeline.map((row) => <div className="corridor-row" role="row" key={`${row.date}-${row.event}`}><span>{row.date}</span><strong>{row.event}</strong><span className={row.changeKg >= 0 ? "positive" : "negative"}>{row.changeKg >= 0 ? "+" : ""}{row.changeKg.toFixed(2)} kg</span><b>{row.balanceKg.toFixed(2)} kg</b></div>)}</div><p className="model-boundary">This is not a physical stock ledger. It assumes invoice dates are receipt dates, uses the master recipe, and starts at zero before the 19 June receipt. Any earlier stock would increase the theoretical balance; unrecorded loss, yield variance or portion variance could reduce the physical balance.</p></section>}
             {selected.id === "ALP-004" && <section className="corridor-panel"><div className="section-heading compact"><div><p className="eyebrow">Receipt-to-output bridge</p><h3>Purchased weight → primary fillet → retained food</h3></div></div><div className="corridor-table" role="table" aria-label="Latest salmon receipt reconciliation"><div className="corridor-row corridor-head" role="row"><span>Date</span><span>Evidence event</span><span>Weight</span><span>State</span></div><div className="corridor-row" role="row"><span>17 Aug</span><strong>Frozen weight purchased</strong><span>8.800 kg</span><b>Linked</b></div><div className="corridor-row" role="row"><span>21 Aug</span><strong>Primary fillet measured</strong><span>6.150 kg</span><b>Confirmed</b></div>{latestReceipt.allocations.map((row) => <div className="corridor-row" role="row" key={row.label}><span>21 Aug</span><strong>{row.label} · {row.use}</strong><span>{row.kg.toFixed(3)} kg</span><b>Confirmed</b></div>)}<div className="corridor-row" role="row"><span>25 Aug</span><strong>Retained fillet coproduct</strong><span>{latestReceipt.reconciliation.retainedCoproductKg.toFixed(3)} kg</span><b>Confirmed</b></div><div className="corridor-row" role="row"><span>25 Aug</span><strong>Purchased-weight difference</strong><span>{latestReceipt.reconciliation.unclassifiedDifferenceKg.toFixed(3)} kg</span><b>Review</b></div></div><p className="model-boundary">Two costing views remain visible: approximately RM{latestReceipt.receipt.effectiveThawedCostPerKgRm.toFixed(2)}/kg when all cost is assigned to primary fillet, or RM56.00/kg when cost is spread uniformly across 7.229 kg retained food. The batch is still open.</p></section>}
             <div className="analysis-grid"><section><div className="section-heading compact"><div><p className="eyebrow">Diagnosis</p><h3>Explanations still in play</h3></div></div><div className="hypothesis-list">{selected.hypotheses.map((item) => <div className="hypothesis" key={item.label}><span className={`evidence-dot ${item.tone}`} /><div><strong>{item.label}</strong><small>{item.assessment}</small></div></div>)}</div></section><section><div className="section-heading compact"><div><p className="eyebrow">Evidence chain</p><h3>Latest evidence first</h3></div></div><div className="evidence-list">{selected.evidence.map((item) => <div className={`evidence-item ${item.tone}`} key={`${item.source}-${item.locator}`}><span>{item.source}{item.date && <small>{item.date}</small>}</span><strong>{item.detail}</strong><small>{item.locator}</small></div>)}</div></section></div>
-            <section className="recommended-action"><div><p className="eyebrow">Minimum next evidence</p><h3>{selected.action}</h3><small>The review decision is retained as an audit event; Alpha does not silently write to POS, stock or accounting systems.</small></div><div className="action-buttons"><button className="secondary" onClick={() => setStatus("Verifying")}>Request verification</button><button className="primary" onClick={() => setStatus("Resolved")}>Record resolution</button></div></section>
+            <section className="recommended-action"><div><p className="eyebrow">Minimum next evidence</p><h3>{selected.action}</h3><small>Public demonstration only. The private system persists tasks, evidence and owner decisions; neither route silently writes to POS, stock or accounting systems.</small>{selected.status === "Ready for decision" && <label className="resolution-field"><span>Resolution note</span><input value={resolutionDraft} onChange={(event) => setResolutionDraft(event.target.value)} placeholder="What the evidence established" /></label>}{actionFeedback[selected.id] && <p className="action-feedback" role="status">{actionFeedback[selected.id]}</p>}</div><div className="action-buttons"><button className="secondary" onClick={requestVerification}>{selected.status === "Verifying" ? "Verification queued" : "Request verification"}</button>{selected.status === "Verifying" && <button className="secondary" onClick={simulateEvidence}>Simulate evidence</button>}<button className="primary" onClick={recordResolution}>Record resolution</button></div></section>
           </article>
           <aside className="health-rail"><div className="section-heading"><div><p className="eyebrow">Evidence reliability</p><h2>Snapshot coverage</h2></div></div><div className="health-list"><div><span className="health-dot healthy" /><p><strong>Receipt line</strong><small>8.80 kg · RM46/kg</small></p><b>LINKED</b></div><div><span className="health-dot healthy" /><p><strong>Primary fillet</strong><small>6.15 kg observed</small></p><b>CONFIRMED</b></div><div><span className="health-dot healthy" /><p><strong>Retained coproduct</strong><small>1.079 kg confirmed</small></p><b>CONFIRMED</b></div><div><span className="health-dot warning" /><p><strong>Purchased-weight difference</strong><small>1.571 kg cause unclassified</small></p><b>REVIEW</b></div><div><span className="health-dot warning" /><p><strong>Latest batch stock</strong><small>Not exhausted</small></p><b>OPEN</b></div><div><span className="health-dot neutral" /><p><strong>Cube/coproduct split</strong><small>Secondary dishes unmeasured</small></p><b>MISSING</b></div></div><div className="freshness-card"><span>Total retained-food yield</span><strong>82.15%</strong><small>Primary fillet plus retained coproduct; not an estimate of food waste.</small></div><div className="source-note"><strong>Inference boundary</strong><p>Alpha separates observed yield, historical projection and multi-batch POS demand. It does not force an unfinished receipt to reconcile to sales.</p></div></aside>
         </section>
