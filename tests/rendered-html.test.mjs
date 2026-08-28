@@ -29,6 +29,11 @@ test("server-renders the redacted Q1 evidence dashboard", async () => {
   assert.match(html, /1\.571 kg.*unclassified/i);
   assert.match(html, /Projected historical scenario/);
   assert.match(html, /33\.02 kg/);
+  assert.match(html, /Owner questions become bounded evidence packets/);
+  assert.match(html, /4,291/);
+  assert.match(html, /11,068/);
+  assert.match(html, /similarity is not proof of equivalence/i);
+  assert.match(html, /no write authority/i);
   assert.match(html, /not actual historical output/i);
   assert.match(html, /A second salmon receipt landed with 4\.11 kg theoretically on hand/);
   assert.doesNotMatch(html, /all values are simulated|74% confidence|RM184 at risk/i);

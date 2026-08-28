@@ -16,6 +16,7 @@ This repository is the redacted public artifact for **Team Ascend**, submitted t
 - Deterministic validation of quantity, unit price, line amount and invoice totals.
 - Human approval before any consequential operational write.
 - Local-first document processing, with remote models reserved for genuinely ambiguous cases.
+- Read-only owner questions using local keyword + embedding retrieval, typed evidence links and explicit abstention.
 
 The public dashboard includes anonymized evidence from a live café pilot. Supplier identities, invoice numbers, customer records, credentials and production endpoints are intentionally excluded.
 
@@ -26,6 +27,22 @@ One frozen-salmon receipt recorded 8.80 kg purchased at RM46/kg and 6.15 kg of p
 Using this latest observed production mix as a provisional template, ten earlier frozen-fillet receipts totalling 52.54 kg project to approximately 36.718 kg primary fillet and 6.442 kg retained coproduct. These are modelled historical equivalents, not actual recorded production. A separate 20–23 August POS view calculates 33.02 kg of theoretical primary-fillet demand across mixed inventory; it is not reconciled to the unfinished latest receipt.
 
 This is the product principle in miniature: **show the calculation, expose uncertainty, and ask for the minimum resolving evidence.**
+
+## Ask Alpha — local evidence packets
+
+The public dashboard now includes a redacted interactive demonstration of the
+first Ask Alpha prototype. A disposable local index was rebuilt from 4,291
+private snapshot records into 11,068 typed relationship edges. SQLite FTS5 and
+the local `nomic-embed-text` model retrieve a bounded evidence packet; supported
+relationship and cost questions resolve deterministically, while an unconfirmed
+identity question abstains because similarity is not proof of equivalence.
+
+All four targeted evaluation questions retrieved their expected evidence and
+passed their answer-or-abstention checks after the deterministic guardrails were
+added. This is a small engineering evaluation, not a general accuracy claim.
+The raw Gemma 3 4B CPU baseline did not pass the answer-safety gate, so it is not
+presented as an autonomous reasoner or promoted to the default route. Ask Alpha
+remains read-only and cannot change supplier, recipe, stock or accounting data.
 
 ## Pipeline
 

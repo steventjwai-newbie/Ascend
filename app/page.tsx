@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import salmonSnapshot from "@/public/data/alpha-salmon-case.json";
 import latestReceipt from "@/public/data/alpha-latest-receipt.json";
 import { SalmonEvidenceModel } from "./SalmonEvidenceModel";
+import { AskAlphaEvidence } from "./AskAlphaEvidence";
 
 type CaseStatus = "Open" | "Verifying" | "Ready for decision" | "Resolved";
 type EvidenceTone = "confirmed" | "linked" | "missing" | "review";
@@ -228,6 +229,7 @@ export default function Home() {
         <section className="hero-band"><div><p className="eyebrow">Expected margin vs operational reality</p><h1>Find where the<br /><em>food margin went.</em></h1><p className="hero-copy">Alpha reconstructs what should have happened from receipts, sales, recipes and operating context—then keeps observed facts, projections and unresolved evidence visibly separate.</p></div><div className="hero-metrics" aria-label="Q1 evidence summary"><div><span>Primary yield</span><strong>69.89%</strong><small>8.80 kg purchased → 6.15 kg primary fillet</small></div><div><span>Total retained food</span><strong>82.15%</strong><small>Includes 1.079 kg retained coproduct</small></div><div><span>POS demand</span><strong>33.02 kg</strong><small>20–23 Aug · mixed inventory, not one receipt</small></div></div></section>
         <div className="notice" role="status"><span>REDACTED REAL DATA</span>{notice}</div>
         <SalmonEvidenceModel />
+        <AskAlphaEvidence />
         <section className="workspace-grid">
           <aside className="case-rail"><div className="section-heading"><div><p className="eyebrow">Investigation queue</p><h2>What needs attention</h2></div><span>{caseStates.length}</span></div><div className="case-list">{caseStates.map((item) => <button key={item.id} className={`case-card ${selected.id === item.id ? "selected" : ""}`} onClick={() => setSelectedId(item.id)}><div className="case-meta"><span className={`severity ${item.severity}`}>{item.category}</span><small>{item.id}</small></div><h3>{item.title}</h3><div className="case-footer"><strong>{item.impact}</strong><span>{item.evidenceState}</span></div></button>)}</div></aside>
           <article className="case-detail">
