@@ -5,10 +5,9 @@ const isPagesBuild = process.env.BUILD_TARGET === "pages";
 const nextConfig: NextConfig = {
   ...(isPagesBuild
     ? {
-        // Keep the GitHub Pages build isolated from Vinext's `.next` metadata.
-        // Both build routes are exercised locally and their generated types are
-        // not interchangeable.
-        distDir: ".next-pages",
+        // Keep the GitHub Pages build isolated from Vinext's `.next` metadata
+        // and emit the upload-ready static artifact at the workflow's `out` path.
+        distDir: "out",
         output: "export",
         basePath: "/Ascend",
         assetPrefix: "/Ascend",
