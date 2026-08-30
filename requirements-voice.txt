@@ -1,0 +1,3 @@
+# Disclosed dependency for the private, customer-controlled voice worker.
+# The worker source and production configuration are intentionally not public.
+faster-whisper==1.2.1

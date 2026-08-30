@@ -16,6 +16,7 @@ This repository is the redacted public artifact for **Team Ascend**, submitted t
 - Deterministic validation of quantity, unit price, line amount and invoice totals.
 - Human approval before any consequential operational write.
 - Local-first document processing, with remote models reserved for genuinely ambiguous cases.
+- Local voice-to-review from the private dashboard and Telegram, with transient audio deletion and no direct write authority.
 - Read-only owner questions using local keyword + embedding retrieval, typed evidence links and explicit abstention.
 
 The public dashboard includes anonymized evidence from a live café pilot. Supplier identities, invoice numbers, customer records, credentials and production endpoints are intentionally excluded.
@@ -60,6 +61,8 @@ Document / POS / recipe / operator observation
 
 Rapid local extraction handles common document fields. More accurate local OCR and structured reconstruction run asynchronously where needed. Schema, arithmetic and cross-record checks catch many errors without an AI call. Remote model escalation is optional and never grants write authority.
 
+Owner voice follows the same boundary. The private dashboard or Telegram queues a short recording to `faster-whisper` Small on the customer-controlled computer. Domain vocabulary helps with operational terms; the returned transcript is edited or discarded by a human before it can become a proposal. Audio is deleted from Alpha's transient queue after successful transcription. See [the redacted voice benchmark](docs/local-voice-benchmark.md).
+
 ## Run locally
 
 Requirements: Node.js 22.13 or newer.
@@ -75,6 +78,8 @@ Quality checks:
 npm run lint
 npm test
 ```
+
+The production voice worker is deliberately excluded from this redacted public artifact. Its disclosed Python runtime dependency is recorded in [`requirements-voice.txt`](requirements-voice.txt) for reproducibility; the public dashboard itself does not need it.
 
 ## Scope and roadmap
 
