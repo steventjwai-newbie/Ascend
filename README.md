@@ -10,6 +10,8 @@ This repository is the redacted public artifact for **Team Ascend**, submitted t
 
 ## What the prototype demonstrates
 
+- A redacted version of the real owner workspace: Daily Control Tower, Investigation Cockpit and Cost Explorer.
+- A menu-margin quadrant with explicit recipe-cost coverage and interactive item labels.
 - A daily owner-facing investigation queue instead of another generic inventory screen.
 - Source-linked explanations with explicit `Confirmed`, `Linked`, `Review` and `Missing` states.
 - Supplier-specific receipt yields separated from recipe/preparation yields.
